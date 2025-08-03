@@ -5,6 +5,8 @@ from .utils import is_valid_url, generate_code
 app = Flask(__name__)
 store = URLStore()
 
+from flask import request
+
 @app.route("/api/shorten", methods=["POST"])
 def shorten_url():
     data = request.get_json()
@@ -18,10 +20,15 @@ def shorten_url():
         short_code = generate_code()
 
     store.save_url(short_code, url)
+
+    # ✅ This will adapt based on your host (localhost or render.com)
+    short_url = request.host_url + short_code
+
     return jsonify({
         "short_code": short_code,
-        "short_url": f"http://localhost:5000/{short_code}"
+        "short_url": short_url
     })
+
 
 @app.route("/<short_code>")
 def redirect_url(short_code):
